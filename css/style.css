@@ -1,0 +1,25 @@
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center; /* horizontalno */
+  align-items: center;     /* vertikalno */
+  flex-direction: column;  /* da HUD ostane nad canvasom */
+  background: white;        
+}
+
+.canvas {
+  border: 2px solid black; /* opcijsko za vidnost */
+}
+.controls {
+  margin: 10px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+button {
+  padding: 8px 16px;
+  font-size: 16px;
+  cursor: pointer;
+}

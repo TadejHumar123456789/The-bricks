@@ -1,10 +1,10 @@
-let x = 150, y = 150, dx = 2, dy = 2, r = 10;
+let x = 150, y = 150, dx = 2, dy = 4, r = 10;
 let W, H, ctx, id;
 let px, ph = 10, pw = 100;
 let right = false, left = false;
-let bricks, rows = 5, cols = 5, bw, bh = 15, pad = 1;
+let bricks, rows = 5, cols = 7, bw, bh = 10, pad = 2;
 let sec = 0, time = "00:00", score = 0;
-let paddlecolor = "#000", ballcolor = "#000";
+let paddlecolor = "#000", ballcolor = "red";
 let frame = 0;
 
 function drawCircle(x, y, r) {
@@ -32,7 +32,7 @@ function drawIt() {
   px = (W - pw) / 2;
   bw = W / cols - 1;
 
-  bricks = Array.from({ length: rows }, () => Array(cols).fill(3));
+  bricks = Array.from({ length: rows }, () => Array(cols).fill(1));
 
   $("#tocke").text(score);
   $("#cas").text(time);
@@ -67,8 +67,8 @@ function draw() {
     for (let j = 0; j < cols; j++) {
       if (bricks[i][j] > 0) {
         ctx.fillStyle =
-          bricks[i][j] === 3 ? "red" :
-          bricks[i][j] === 2 ? "orange" :
+          bricks[i][j] === 2 ? "blue" :
+          bricks[i][j] === 1 ? "purple" :
           "yellow";
 
         drawRect(
@@ -106,9 +106,11 @@ function draw() {
     dy = -dy;
   } else if (y + dy > H - ph - r) {
     // paddle collision
-    if (x > px && x < px + pw) {
+    if (x > px && x < px + pw) {//za odboj od ploscka
       dy = -dy;
-    } else if (y + dy > H - r) {
+	  dx=8*((x-(px+pw/2))/pw);
+	  start=true;
+    } else if (y + dy > H - r+8) {
       clearInterval(id);
       alert("Game over");
       return;
