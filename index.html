@@ -1,27 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Retro Breakout</title>
-  <link rel="stylesheet" href="css/style.css" />
-
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="js/script.js" defer></script>
+  <meta charset="UTF-8">
+  <title>The Bricks</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/jQuery.js"></script>
+  <script src="js/script.js"></script>
 </head>
-<body>
-  <div class="hud">
-    Score: <span id="tocke">0</span> |
-    Time: <span id="cas">00:00</span> |
-    Level: <span id="lvl">1</span>
+<body onload="init()">
+  <div class="container">
+    <div class="game-header">
+      <h1 class="naslov">The Bricks</h1>
+      <p class="navodila">Premikaj ploscico z levo in desno puscico in pocisti vse bloke.</p>
+    </div>
+    <div class="hud">
+  <div class="kocke">
+    <span class="hud-label">Level</span>
+    <mark id="level">1</mark>
+  </div>
+  <div class="kocke">
+    <span class="hud-label">Cas</span>
+    <mark id="cas">00:00</mark>
+  </div>
+  <div class="kocke">
+    <span class="hud-label">Tocke</span>
+    <mark id="tocke">0</mark>
+  </div>
+</div>
+
+<div class="game-area">
+  <div class="canvas-frame">
+    <canvas id="canvas" width="710" height="520"></canvas>
   </div>
 
-  <div class="controls">
-    <button id="start">Start</button>
-    <button id="pause">Pavza</button>
-    <button id="reset">Reset</button>
+  <div class="controls-side">
+    <button onclick="startGame()">Start</button>
+    <button onclick="resetGame()">Reset</button>
   </div>
-
-  <canvas class="canvas" id="canvas" width="600" height="400"></canvas>
+</div>
+    
+  </div>
 </body>
 </html>

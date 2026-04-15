@@ -1,33 +1,130 @@
-body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center; /* horizontalno */
-  align-items: center;     /* vertikalno */
-  flex-direction: column;  /* da HUD ostane nad canvasom */ 
-background-image:url('../img/background.png');
- background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;  
-}
-.hud{
-	color:white;
-}
-.canvas {
-  border: 2px solid black; /* opcijsko za vidnost */
-}
-.controls {
-  margin: 10px;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-button {
-  padding: 8px 16px;
-  font-size: 16px;
-  cursor: pointer;
-  color:white;
-  background-color:#013220;
+body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Segoe UI";
+    color: #06402B;
+    background: #06402B;
+}
+
+.container {
+    padding: 18px;
+    
+    border-radius: 24px;
+    background: #06402B;
+    
+}
+
+.game-header {
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+.naslov {
+    color: white;
+    line-height: 1;
+}
+
+.navodila {
+    max-width: 620px;
+    margin: 8px auto 0;
+    color: white;
+    line-height: 1.35;
+}
+
+.hud {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.kocke {
+    padding: 10px 12px;
+    width: 200px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+    text-align: center;
+}
+
+.hud-label {
+    display: block;
+    margin-bottom: 4px;
+    color: black;
+    font-weight: bold;
+}
+
+mark {
+    padding: 0;
+    background: transparent;
+    color: #0f172a;
+}
+
+.canvas-frame {
+    padding: 10px;
+    
+    border-radius: 20px;
+}
+
+#canvas {
+    display: block;
+    width: 720px;
+    height: auto;
+    margin: 0 auto;
+   
+    border-radius: 16px;
+    background-image:url('../img/background.png'); 
+}
+
+
+.game-area {
+    position: relative;
+    width: 720px;
+    margin: 0 auto;
+}
+
+.canvas-frame {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.controls-side {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 16px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.controls-side button {
+    padding: 10px 12px;
+    width: 200px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: "Segoe UI";
+    font-size: 16px;
+    text-align: center;
+}
+
+.controls-side button:hover {
+    transform: scale(1.02);
+}
+
+.controls-side button:active {
+    transform: scale(0.98);
 }

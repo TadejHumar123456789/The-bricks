@@ -1,328 +1,404 @@
-let x = 150, y = 150, dx = 2, dy = -4, r = 10;
-let W, H, ctx, id = null;
-let px, ph = 20, pw = 100;
-let right = false, left = false;
+var x = 150;
+var y = 200;
+var dx = 0;
+var dy = 4;
+var WIDTH;
+var HEIGHT;
+var r = 12;
+var ctx;
+var intervalId = null;
+var timerId = null;
+var level = 1;
 
-let bricks, rows = 5, cols = 7, bw, bh = 20, pad = 2;
+var ballImg = new Image();
+var paddleImg = new Image();
+var brick1Img = new Image();
+var brick2Img = new Image();
 
-let sec = 0, time = "00:00", score = 0;
-let frame = 0;
-let gameStarted = false;
-let level = 1;
+var imagesLoaded = 0;
+var totalImages = 4;
+var assetsReady = false;
 
-const nextLevelZone = {
-  x: 0,
-  y: 0,
-  w: 120,
-  h: 50
-};
-// images
-const ballImg = new Image();
-ballImg.src = "./img/ball.png";
+var start = false;
+var gameRunning = false;
+var gameWon = false;
 
-const paddleImg = new Image();
-paddleImg.src = "./img/paddle.png";
+var tocke = 0;
+var sekunde = 0;
+var izpisTimer = "00:00";
 
-const brickImg = new Image();
-brickImg.src = "./img/bricks.png";
+var paddlex;
+var paddleh;
+var paddlew;
 
-const brickStrongImg = new Image();
-brickStrongImg.src = "./img/bricks1.png";
+var rightDown = false;
+var leftDown = false;
 
-// wait until all images load
-let loadedImages = 0;
+var bricks;
+var NROWS;
+var NCOLS;
+var BRICKWIDTH;
+var BRICKHEIGHT;
+var PADDING;
+
+function updateLevelDisplay() {
+    $("#level").html(level);
+}
+
+function updateScoreDisplay() {
+    $("#tocke").html(tocke);
+}
+
+function updateTimerDisplay() {
+    $("#cas").html(izpisTimer);
+}
+
+function resetBall() {
+    x = WIDTH / 2;
+    y = HEIGHT - 25;
+    dx = 0;
+    dy = -4;
+}
+
 function imageLoaded() {
-  loadedImages++;
-  if (loadedImages === 4) {
-    initGame();
-  }
+    imagesLoaded++;
+
+    if (imagesLoaded === totalImages) {
+        assetsReady = true;
+
+        init_paddle();
+        initbricks();
+        resetBall();
+
+        sekunde = 0;
+        izpisTimer = "00:00";
+        tocke = 0;
+
+        updateLevelDisplay();
+        updateTimerDisplay();
+        updateScoreDisplay();
+
+        draw();
+    }
 }
 
-ballImg.onload = imageLoaded;
-paddleImg.onload = imageLoaded;
-brickImg.onload = imageLoaded;
-brickStrongImg.onload = imageLoaded;
-
-function drawBall() {
-  ctx.drawImage(ballImg, x - r, y - r, r * 2, r * 2);
+function imageError(e) {
+    console.error("Napaka pri nalaganju slike:", e.target.src);
 }
 
-function drawPaddle() {
-  ctx.drawImage(paddleImg, px, H - ph, pw, ph);
+function init() {
+    ctx = $("#canvas")[0].getContext("2d");
+    WIDTH = $("#canvas")[0].width;
+    HEIGHT = $("#canvas")[0].height;
+
+    $(document).keydown(onKeyDown);
+    $(document).keyup(onKeyUp);
+
+    ballImg.onload = imageLoaded;
+    paddleImg.onload = imageLoaded;
+    brick1Img.onload = imageLoaded;
+    brick2Img.onload = imageLoaded;
+
+    ballImg.onerror = imageError;
+    paddleImg.onerror = imageError;
+    brick1Img.onerror = imageError;
+    brick2Img.onerror = imageError;
+
+    ballImg.src = "./img/ball.png";
+    paddleImg.src = "./img/paddle.png";
+    brick1Img.src = "./img/bricks.png";
+    brick2Img.src = "./img/bricks1.png";
+
+    drawLoadingScreen();
 }
 
-function drawBrick(x, y, w, h, hp) {
-  if (hp >= 2) {
-    ctx.drawImage(brickStrongImg, x, y, w, h);
-  } else {
-    ctx.drawImage(brickImg, x, y, w, h);
-  }
+function drawLoadingScreen() {
+    clear();
+    ctx.font = "24px Segoe UI";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#0f172a";
+    ctx.fillText("Loading images...", WIDTH / 2, HEIGHT / 2);
+}
+
+function init_paddle() {
+    paddlex = WIDTH / 2 - 75;
+    paddleh = 20;
+	paddlew = 150;
+    
+}
+
+function initbricks() {
+    if (level == 1) {
+        NROWS = 3;
+        NCOLS = 4;
+    } else if (level == 2) {
+        NROWS = 5;
+        NCOLS = 6;
+    } else if (level == 3) {
+        NROWS = 5;
+        NCOLS = 10;
+    } else {
+        NROWS = 2;
+        NCOLS = 2;
+    }
+
+    BRICKWIDTH = (WIDTH / NCOLS) - 2;
+    BRICKHEIGHT = 30;
+    PADDING = 2;
+
+    bricks = new Array(NROWS);
+
+    for (var i = 0; i < NROWS; i++) {
+        bricks[i] = new Array(NCOLS);
+        for (var j = 0; j < NCOLS; j++) {
+            bricks[i][j] = Math.floor(Math.random() * 2) + 1;
+        }
+    }
 }
 
 function clear() {
-  ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0, 0, WIDTH, HEIGHT);
 }
 
-function createLevel(levelNum) {
-  const map = [];
-
-  for (let i = 0; i < rows; i++) {
-    map[i] = [];
-    for (let j = 0; j < cols; j++) {
-      // default normal brick
-      map[i][j] = 1;
+function allBricksDestroyed() {
+    for (var i = 0; i < NROWS; i++) {
+        for (var j = 0; j < NCOLS; j++) {
+            if (bricks[i][j] > 0) {
+                return false;
+            }
+        }
     }
-  }
+    return true;
+}
 
-  // level designs
-  if (levelNum === 1) {
-    // only normal bricks
-    return map;
-  }
+function timer() {
+    if (!gameRunning) return;
 
-  if (levelNum === 2) {
-    // top 2 rows are stronger
-    for (let i = 0; i < 2; i++) {
-      for (let j = 0; j < cols; j++) {
-        map[i][j] = 2; // stronger brick, 2 hp
-      }
+    sekunde++;
+    var sekundeI = sekunde % 60;
+    var minuteI = Math.floor(sekunde / 60);
+
+    sekundeI = sekundeI > 9 ? sekundeI : "0" + sekundeI;
+    minuteI = minuteI > 9 ? minuteI : "0" + minuteI;
+
+    izpisTimer = minuteI + ":" + sekundeI;
+    updateTimerDisplay();
+}
+
+function onKeyDown(evt) {
+    if (evt.key === "ArrowRight" || evt.key === "d" || evt.key === "D") {
+        rightDown = true;
+    } else if (evt.key === "ArrowLeft" || evt.key === "a" || evt.key === "A") {
+        leftDown = true;
     }
-    return map;
-  }
+}
 
-  if (levelNum === 3) {
-    // checker pattern of strong bricks
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        map[i][j] = (i + j) % 2 === 0 ? 2 : 1;
-      }
+function onKeyUp(evt) {
+    if (evt.key === "ArrowRight" || evt.key === "d" || evt.key === "D") {
+        rightDown = false;
+    } else if (evt.key === "ArrowLeft" || evt.key === "a" || evt.key === "A") {
+        leftDown = false;
     }
-    return map;
-  }
+}
 
-  // from level 4 onward: more strong bricks
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-      if (i < 3 || (i + j) % 2 === 0) {
-        map[i][j] = 2;
-      } else {
-        map[i][j] = 1;
-      }
+function preveriZmago() {
+    if (!gameWon && allBricksDestroyed()) {
+        gameWon = true;
+        stopGameLoops();
+
+        Swal.fire({
+            title: "Bravo!",
+            text: "Končal si level " + level,
+            icon: "success",
+            confirmButtonText: "Naprej"
+        }).then(function () {
+            level++;
+            gameWon = false;
+            init_paddle();
+            initbricks();
+            resetBall();
+            start = false;
+            draw();
+        });
     }
-  }
-
-  return map;
-}
-function isInsideNextLevelZone(mx, my) {
-  return (
-    mx >= nextLevelZone.x &&
-    mx <= nextLevelZone.x + nextLevelZone.w &&
-    my >= nextLevelZone.y &&
-    my <= nextLevelZone.y + nextLevelZone.h
-  );
 }
 
-function resetBallAndPaddle() {
-  px = (W - pw) / 2;
-  x = px + pw / 2;
-  y = H - ph - r - 2;
-
-  dx = 2 + Math.min(level - 1, 3); // faster on higher levels
-  dy = -(4 + Math.min(level - 1, 3));
-}
-
-function initGame() {
-  const canvas = document.getElementById("canvas");
-  ctx = canvas.getContext("2d");
-  W = canvas.width;
-  H = canvas.height;
-
-  bw = W / cols - 1;
-
-  level = 1;
-  sec = 0;
-  frame = 0;
-  score = 0;
-  time = "00:00";
-  gameStarted = false;
-
-  bricks = createLevel(level);
-  resetBallAndPaddle();
-
-  $("#tocke").text(score);
-  $("#cas").text(time);
-  $("#lvl").text(level);
-
-  drawScene();
-}
-
-function loadNextLevel() {
-  level++;
-  bricks = createLevel(level);
-  gameStarted = false;
-  resetBallAndPaddle();
-  $("#lvl").text(level);
-  drawScene();
-}
-
-function drawScene() {
-  clear();
-
-  drawPaddle();
-
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-      if (bricks[i][j] > 0) {
-        drawBrick(
-          j * (bw + pad) + pad,
-          i * (bh + pad) + pad,
-          bw,
-          bh,
-          bricks[i][j]
-        );
-      }
+function stopGameLoops() {
+    if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
     }
-  }
-
-  drawBall();
+    if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+    }
+    gameRunning = false;
 }
 
 function startGame() {
-  if (!gameStarted) {
-    gameStarted = true;
-  }
+    if (!assetsReady) return;
+    if (gameRunning) return;
 
-  if (!id) {
-    id = setInterval(draw, 10);
-  }
-}
+    if (!intervalId) {
+        intervalId = setInterval(draw, 10);
+    }
+    if (!timerId) {
+        timerId = setInterval(timer, 1000);
+    }
 
-function pauseGame() {
-  if (id) {
-    clearInterval(id);
-    id = null;
-  }
+    if (dx === 0) {
+        dx = 3;
+    }
+
+    dy = -4;
+    start = true;
+    gameRunning = true;
 }
 
 function resetGame() {
-  pauseGame();
-  initGame();
+    if (!assetsReady) return;
+
+    stopGameLoops();
+
+    level = 1;
+    sekunde = 0;
+    izpisTimer = "00:00";
+    tocke = 0;
+    start = false;
+    gameWon = false;
+    rightDown = false;
+    leftDown = false;
+
+    init_paddle();
+    initbricks();
+    resetBall();
+
+    updateLevelDisplay();
+    updateTimerDisplay();
+    updateScoreDisplay();
+
+    draw();
 }
 
-function remainingBricks() {
-  let count = 0;
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-      if (bricks[i][j] > 0) count++;
+function drawBall() {
+    ctx.drawImage(ballImg, x - r, y - r, r * 2, r * 2);
+}
+
+function drawPaddle() {
+    ctx.drawImage(paddleImg, paddlex, HEIGHT - paddleh, paddlew, paddleh);
+}
+
+function drawBricks() {
+    for (var i = 0; i < NROWS; i++) {
+        for (var j = 0; j < NCOLS; j++) {
+            if (bricks[i][j] > 0) {
+                var brickX = (j * (BRICKWIDTH + PADDING)) + PADDING;
+                var brickY = (i * (BRICKHEIGHT + PADDING)) + PADDING;
+
+                if (bricks[i][j] == 1) {
+                    ctx.drawImage(brick1Img, brickX, brickY, BRICKWIDTH, BRICKHEIGHT);
+                } else if (bricks[i][j] == 2) {
+                    ctx.drawImage(brick2Img, brickX, brickY, BRICKWIDTH, BRICKHEIGHT);
+                }
+            }
+        }
     }
-  }
-  return count;
 }
 
-$(document).on("keydown keyup", function (e) {
-  const down = e.type === "keydown";
+function movePaddle() {
+    if (rightDown) {
+        paddlex += 6;
+        if (paddlex + paddlew > WIDTH) {
+            paddlex = WIDTH - paddlew;
+        }
+    }
 
-  if (e.key === "d" || e.key === "D") right = down;
-  if (e.key === "a" || e.key === "A") left = down;
-});
+    if (leftDown) {
+        paddlex -= 6;
+        if (paddlex < 0) {
+            paddlex = 0;
+        }
+    }
+}
+
+function checkBrickCollision() {
+    for (var i = 0; i < NROWS; i++) {
+        for (var j = 0; j < NCOLS; j++) {
+            if (bricks[i][j] > 0) {
+                var brickX = (j * (BRICKWIDTH + PADDING)) + PADDING;
+                var brickY = (i * (BRICKHEIGHT + PADDING)) + PADDING;
+
+                if (
+                    x + r > brickX &&
+                    x - r < brickX + BRICKWIDTH &&
+                    y + r > brickY &&
+                    y - r < brickY + BRICKHEIGHT
+                ) {
+                    bricks[i][j]--;
+                    dy = -dy;
+                    tocke++;
+                    updateScoreDisplay();
+                    preveriZmago();
+                    return;
+                }
+            }
+        }
+    }
+}
+
+function checkWallAndPaddleCollision() {
+    if (x + dx > WIDTH - r || x + dx < r) {
+        dx = -dx;
+    }
+
+    if (y + dy < r) {
+        dy = -dy;
+    }
+
+    var paddleTop = HEIGHT - paddleh;
+    var paddleLeft = paddlex;
+    var paddleRight = paddlex + paddlew;
+
+    if (
+        y + r + dy >= paddleTop &&
+        x >= paddleLeft &&
+        x <= paddleRight &&
+        dy > 0
+    ) {
+        var hitPosition = (x - (paddlex + paddlew / 2)) / (paddlew / 2);
+        dx = hitPosition * 5;
+        dy = -Math.abs(dy);
+    }
+
+    if (y + dy > HEIGHT + r) {
+        stopGameLoops();
+
+        Swal.fire({
+            title: "Konec igre",
+            text: "Zgrešil si žogico.",
+            icon: "error",
+            confirmButtonText: "Poskusi znova"
+        });
+    }
+}
 
 function draw() {
-  if (right) px = Math.min(W - pw, px + 5);
-  if (left) px = Math.max(0, px - 5);
-
-  // before game starts, keep ball on paddle
-  if (!gameStarted) {
-    x = px + pw / 2;
-    y = H - ph - r - 2;
-    drawScene();
-    return;
-  }
-
-  clear();
-
-  drawBall();
-  drawPaddle();
-
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-      if (bricks[i][j] > 0) {
-        drawBrick(
-          j * (bw + pad) + pad,
-          i * (bh + pad) + pad,
-          bw,
-          bh,
-          bricks[i][j]
-        );
-      }
+    if (!assetsReady) {
+        drawLoadingScreen();
+        return;
     }
-  }
 
-  // brick collision
-  const rh = bh + pad;
-  const cw = bw + pad;
-  const row = Math.floor(y / rh);
-  const col = Math.floor(x / cw);
+    clear();
+    movePaddle();
+    drawBricks();
+    drawPaddle();
+    drawBall();
 
-  if (
-    y < rows * rh &&
-    row >= 0 &&
-    col >= 0 &&
-    col < cols &&
-    bricks[row]?.[col] > 0
-  ) {
-    dy = -dy;
+    if (gameRunning) {
+        checkBrickCollision();
+        checkWallAndPaddleCollision();
 
-    bricks[row][col]--; // strong bricks need more hits
-    score++;
-    $("#tocke").text(score);
-
-    if (remainingBricks() === 0) {
-      loadNextLevel();
-      return;
+        x += dx;
+        y += dy;
     }
-  }
-
-  // wall collision
-  if (x + dx > W - r || x + dx < r) dx = -dx;
-
-  if (y + dy < r) {
-    dy = -dy;
-  } else if (y + dy > H - ph - r) {
-    if (x > px && x < px + pw) {
-      dy = -dy;
-      dx = 8 * ((x - (px + pw / 2)) / pw);
-    } else if (y + dy > H - r + 8) {
-      pauseGame();
-      alert("Game Over!");
-      return;
-    }
-  }
-
-  x += dx;
-  y += dy;
-
-  frame++;
-  if (frame % 100 === 0) {
-    sec++;
-    const s = String(sec % 60).padStart(2, "0");
-    const m = String(Math.floor(sec / 60)).padStart(2, "0");
-    time = `${m}:${s}`;
-    $("#cas").text(time);
-  }
 }
-
-$(function () {
-  $("#start").on("click", startGame);
-  $("#pause").on("click", pauseGame);
-  $("#reset").on("click", resetGame);
-
-  $("#canvas").on("click", function (e) {
-    const rect = this.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-
-    if (isInsideNextLevelZone(mx, my)) {
-      loadNextLevel();
-    }
-  });
-});
