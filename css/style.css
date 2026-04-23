@@ -16,8 +16,6 @@ body {
 
 .container {
     padding: 18px;
-    
-    border-radius: 24px;
     background: #06402B;
     
 }
@@ -51,7 +49,6 @@ body {
 .kocke {
     padding: 10px 12px;
     width: 200px;
-    border-radius: 16px;
     background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
     text-align: center;
 }
@@ -71,8 +68,6 @@ mark {
 
 .canvas-frame {
     padding: 10px;
-    
-    border-radius: 20px;
 }
 
 #canvas {
@@ -81,7 +76,7 @@ mark {
     height: auto;
     margin: 0 auto;
    
-    border-radius: 16px;
+  
     background-image:url('../img/background.png'); 
 }
 
@@ -111,7 +106,7 @@ mark {
     padding: 10px 12px;
     width: 200px;
     border: none;
-    border-radius: 16px;
+   
     background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
     color: black;
     font-weight: bold;
