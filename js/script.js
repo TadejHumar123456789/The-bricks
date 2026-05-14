@@ -130,12 +130,12 @@ function init_paddle() {
 function initbricks() {
     if (level == 1) {
         NROWS = 3;
-        NCOLS = 4;
+        NCOLS = 7;
     } else if (level == 2) {
         NROWS = 5;
-        NCOLS = 6;
+        NCOLS = 7;
     } else if (level == 3) {
-        NROWS = 5;
+        NROWS = 6;
         NCOLS = 10;
     } else {
         NROWS = 2;
@@ -210,7 +210,11 @@ function preveriZmago() {
             title: "Bravo!",
             text: "Končal si level " + level,
             icon: "success",
-            confirmButtonText: "Naprej"
+            confirmButtonText: "Naprej",
+            confirmButtonColor: "#06402B",
+            customClass: {
+                icon: "moja-kljukica"
+            }
         }).then(function () {
             level++;
             gameWon = false;
@@ -377,7 +381,8 @@ function checkWallAndPaddleCollision() {
             title: "Konec igre",
             text: "Zgrešil si žogico.",
             icon: "error",
-            confirmButtonText: "Poskusi znova"
+            confirmButtonText: "Poskusi znova",
+			confirmButtonColor: "#06402B"
         });
     }
 }

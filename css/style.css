@@ -123,3 +123,16 @@ mark {
 .controls-side button:active {
     transform: scale(0.98);
 }
+.moja-kljukica.swal2-success {
+    border-color: #06402B !important;
+    color: #06402B !important;
+}
+
+.moja-kljukica .swal2-success-line-tip,
+.moja-kljukica .swal2-success-line-long {
+    background-color: #06402B !important;
+}
+
+.moja-kljukica .swal2-success-ring {
+    border-color: #06402B !important;
+}
